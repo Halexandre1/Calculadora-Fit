@@ -1,707 +1,481 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class=""> <!-- A classe 'dark' será adicionada aqui -->
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Massa Magra</title>
+    <title>Calculadora de Massa Magra | HAlexandre</title>
+    <meta name="description" content="Calculadora de composição corporal precisa. Estime massa magra e gordura usando fórmulas científicas (Boer, James, Hume).">
+    <meta name="author" content="HAlexandre">
+    <meta name="theme-color" content="#667eea">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💪</text></svg>">
+
     <style>
         :root {
-            /* --- Variáveis de Cores (Tema Claro) --- */
+            /* --- Cores Tema Claro --- */
             --bg-grad-start: #667eea;
             --bg-grad-end: #764ba2;
-            --text-light: white;
-            --text-light-muted: rgba(255,255,255,0.9);
-            --container-bg: rgba(255,255,255,0.95);
+            --container-bg: rgba(255, 255, 255, 0.95);
             --section-bg: #f8fafc;
+            --text-title: #ffffff;
+            --text-subtitle: rgba(255, 255, 255, 0.9);
             --text-dark: #374151;
             --text-muted: #6b7280;
             --input-border: #e5e7eb;
-            --input-bg: white;
-            --accent-color: #4facfe;
-            --accent-grad-end: #00f2fe;
-            --footer-text: #777;
-            --warning-bg: #fff3e0;
-            --warning-border: #ff9800;
-            --warning-text-heading: #e65100;
-            --warning-text-body: #6b7280;
+            --input-bg: #ffffff;
+            --accent-color: #764ba2;
+            --accent-hover: #5a3780;
+            --result-card-bg: #ffffff;
+            --warning-bg: #fff7ed;
+            --warning-border: #f97316;
+            --warning-text: #9a3412;
         }
 
-        /* --- Tema Escuro --- */
         html.dark {
-            --bg-grad-start: #2c3e50;
-            --bg-grad-end: #4b6cb7;
-            --text-light: #ecf0f1;
-            --text-light-muted: rgba(236, 240, 241, 0.8);
-            --container-bg: rgba(44, 62, 80, 0.9);
-            --section-bg: #1f2937;
-            --text-dark: #d1d5db;
+            /* --- Cores Tema Escuro --- */
+            --bg-grad-start: #1e293b;
+            --bg-grad-end: #0f172a;
+            --container-bg: rgba(30, 41, 59, 0.95);
+            --section-bg: #111827;
+            --text-title: #f1f5f9;
+            --text-subtitle: #cbd5e1;
+            --text-dark: #f3f4f6;
             --text-muted: #9ca3af;
-            --input-border: #4b5563;
-            --input-bg: #374151;
+            --input-border: #374151;
+            --input-bg: #1f2937;
             --accent-color: #60a5fa;
-            --accent-grad-end: #5eead4;
-            --footer-text: #9ca3af;
-            --warning-bg: #4e342e;
-            --warning-border: #ffb74d;
-            --warning-text-heading: #ffcc80;
-            --warning-text-body: #d1d5db;
+            --accent-hover: #3b82f6;
+            --result-card-bg: #1f2937;
+            --warning-bg: #451a03;
+            --warning-border: #f97316;
+            --warning-text: #ffedd5;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, var(--bg-grad-start) 0%, var(--bg-grad-end) 100%);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--bg-grad-start), var(--bg-grad-end));
             min-height: 100vh;
             padding: 20px;
             color: var(--text-dark);
-            transition: background 0.4s ease;
+            transition: background 0.5s ease;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .container { max-width: 800px; margin: 0 auto; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
+        /* Header */
+        .header { text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center; }
+        
+        .header-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
         }
+        .header-logo:hover { transform: scale(1.05); }
 
-        .title {
-            color: var(--text-light);
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
+        .title { font-size: 2.2rem; font-weight: 800; color: var(--text-title); margin-bottom: 0.5rem; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .subtitle { font-size: 1.1rem; color: var(--text-subtitle); font-weight: 400; }
 
-        .subtitle {
-            color: var(--text-light-muted);
-            font-size: 1.1rem;
-            font-weight: 400;
-        }
-
+        /* Card Principal */
         .calculator-container {
             background: var(--container-bg);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
             position: relative;
             transition: background 0.3s ease;
         }
 
+        /* Toggle Tema */
         .theme-toggle {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: var(--input-bg);
-            border: 1px solid var(--input-border);
-            color: var(--text-muted);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            z-index: 10;
-        }
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        .form-section {
-            padding: 2rem;
-            border-bottom: 1px solid var(--input-border);
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
+            position: absolute; top: 20px; right: 20px;
+            width: 44px; height: 44px;
+            border-radius: 50%; border: none;
+            background: var(--section-bg);
             color: var(--text-dark);
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s, background 0.3s;
+            z-index: 10;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
+        .theme-toggle:hover { transform: scale(1.1); }
+
+        /* Formulário */
+        .form-section { padding: 2.5rem; border-bottom: 1px solid var(--input-border); }
+        .section-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; }
+        .section-title { font-size: 1.25rem; font-weight: 700; color: var(--text-dark); }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-label {
-            font-weight: 500;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-            font-size: 0.95rem;
-        }
-
+        .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+        .form-label { font-size: 0.9rem; font-weight: 600; color: var(--text-dark); }
+        
         .form-input {
-            padding: 0.875rem;
+            padding: 0.8rem 1rem;
             border: 2px solid var(--input-border);
-            border-radius: 10px;
+            border-radius: 12px;
+            background: var(--input-bg);
+            color: var(--text-dark);
             font-size: 1rem;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15); }
+
+        /* Radio Buttons (Sexo) */
+        .radio-group { display: flex; gap: 1rem; background: var(--section-bg); padding: 0.5rem; border-radius: 12px; }
+        .radio-label {
+            flex: 1; text-align: center; cursor: pointer; padding: 0.6rem;
+            border-radius: 8px; font-weight: 500; font-size: 0.9rem;
+            transition: all 0.2s; color: var(--text-muted);
+            border: 2px solid transparent;
+        }
+        .radio-input { display: none; }
+        .radio-input:checked + .radio-label {
             background: var(--input-bg);
-            color: var(--text-dark);
+            color: var(--accent-color);
+            border-color: var(--input-border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 0.5rem;
-        }
-
-        .radio-option {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 8px;
-            transition: background-color 0.3s ease;
-        }
-
-        .radio-option:hover {
-            background: rgba(79, 172, 254, 0.1);
-        }
-
-        .radio-option input[type="radio"] {
-            margin: 0;
-        }
-
-        .method-selector {
-            margin-bottom: 1.5rem;
-        }
-
-        .method-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-
+        /* Seletor de Método */
+        .method-selector { margin-bottom: 2rem; }
+        .method-buttons { display: flex; flex-wrap: wrap; gap: 0.5rem; }
         .method-btn {
-            padding: 0.75rem 1.5rem;
-            border: 2px solid var(--input-border);
-            border-radius: 25px;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--input-border);
             background: var(--input-bg);
-            color: var(--text-dark);
+            color: var(--text-muted);
+            border-radius: 50px;
             cursor: pointer;
-            transition: all 0.3s ease;
             font-size: 0.9rem;
             font-weight: 500;
+            transition: all 0.2s;
         }
-
+        .method-btn:hover { border-color: var(--accent-color); color: var(--accent-color); }
         .method-btn.active {
-            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-grad-end) 100%);
+            background: var(--accent-color);
             color: white;
-            border-color: transparent;
-        }
-
-        .method-btn:hover:not(.active) {
             border-color: var(--accent-color);
-            background: rgba(79, 172, 254, 0.05);
+            box-shadow: 0 4px 10px rgba(96, 165, 250, 0.3);
         }
 
+        /* Botão Calcular */
         .calculate-btn {
             width: 100%;
             padding: 1rem;
-            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-grad-end) 100%);
+            background: var(--accent-color);
             color: white;
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 1rem;
-        }
-
-        .calculate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);
-        }
-
-        .results-section {
-            padding: 2rem;
-            background: var(--section-bg);
-            transition: background 0.3s ease;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .result-card {
-            background: var(--input-bg);
-            padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            border-left: 4px solid var(--accent-color);
-        }
-
-        .result-title {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .result-value {
-            font-size: 2rem;
             font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        .calculate-btn:hover { background: var(--accent-hover); transform: translateY(-2px); }
+        .calculate-btn:active { transform: translateY(0); }
 
-        .result-unit {
-            font-size: 1rem;
-            color: var(--text-muted);
-        }
+        /* Resultados */
+        .results-section { background: var(--section-bg); padding: 2.5rem; display: none; animation: slideDown 0.4s ease-out; }
+        .results-section.show { display: block; }
+        
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .info-section {
-            background: var(--container-bg);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 2rem;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .info-card {
-            background: var(--input-bg);
+        .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; }
+        
+        .result-card {
+            background: var(--result-card-bg);
             padding: 1.5rem;
-            border-radius: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        .info-card h3 {
-            color: var(--text-dark);
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .info-card p, .info-card li {
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-card ul {
-            padding-left: 1.2rem;
-        }
-        
-        /* --- Estilo do Alerta Profissional --- */
-        .professional-alert {
-            grid-column: 1 / -1; /* Ocupa a largura total da grelha */
-            background: var(--warning-bg);
-            border-left: 5px solid var(--warning-border);
-        }
-        .professional-alert h3 {
-            color: var(--warning-text-heading);
-        }
-        .professional-alert p {
-            color: var(--warning-text-body);
-        }
-
-        .hidden {
-            display: none;
-        }
-
-        .error-message {
-            background: #fef2f2;
-            color: #dc2626;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-top: 1rem;
-            border-left: 4px solid #dc2626;
-        }
-        
-        html.dark .error-message {
-            background: #4c1113;
-            color: #ef9a9a;
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        footer {
+            border-radius: 16px;
+            border: 1px solid var(--input-border);
             text-align: center;
-            margin-top: 2rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255,255,255,0.2);
-            font-size: 14px;
-            color: var(--text-light-muted);
+            position: relative;
+            overflow: hidden;
         }
+        .result-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--accent-color);
+        }
+
+        .result-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .result-value { font-size: 2rem; font-weight: 800; color: var(--text-dark); }
+        .result-unit { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+
+        /* Informações e Footer */
+        .info-section { margin-top: 2rem; }
+        .info-card {
+            background: var(--container-bg);
+            padding: 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .info-card h3 { color: var(--text-dark); margin-bottom: 0.5rem; font-size: 1.1rem; }
+        .info-card p, .info-card li { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; }
+        .info-card ul { padding-left: 1.2rem; }
+
+        .warning-box {
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            padding: 1rem;
+            border-radius: 8px;
+            color: var(--warning-text);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        .hidden { display: none; }
+        
+        footer { text-align: center; margin-top: 3rem; color: rgba(255,255,255,0.7); font-size: 0.9rem; }
     </style>
 </head>
 <body>
+
     <div class="container">
         <div class="header">
+            <img src="https://raw.githubusercontent.com/Halexandre1/PDF_PRO/main/HERBERT.jpg" alt="Logo HAlexandre" class="header-logo">
             <h1 class="title">💪 Calculadora de Massa Magra</h1>
-            <p class="subtitle">Calcule sua composição corporal com precisão científica</p>
+            <p class="subtitle">Análise de composição corporal baseada em ciência</p>
         </div>
 
         <div class="calculator-container">
-            <button class="theme-toggle" id="themeToggle" aria-label="Alternar tema">🌙</button>
+            <button class="theme-toggle" id="themeToggle" title="Alternar Tema">🌙</button>
+            
             <div class="form-section">
-                <h2 class="section-title">📊 Dados Pessoais</h2>
-                
+                <div class="section-header">
+                    <span class="section-title">📝 Seus Dados</span>
+                </div>
+
                 <div class="form-grid">
                     <div class="form-group">
-                        <label class="form-label">Peso (kg)</label>
-                        <input type="number" class="form-input" id="weight" placeholder="70" step="0.1" min="20" max="300">
+                        <label class="form-label" for="weight">Peso (kg)</label>
+                        <input type="number" class="form-input" id="weight" placeholder="Ex: 75.5" step="0.1">
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label">Altura (cm)</label>
-                        <input type="number" class="form-input" id="height" placeholder="175" step="0.1" min="100" max="250">
+                        <label class="form-label" for="height">Altura (cm)</label>
+                        <input type="number" class="form-input" id="height" placeholder="Ex: 180" step="1">
                     </div>
-                    
                     <div class="form-group">
-                        <label class="form-label">Idade (anos)</label>
-                        <input type="number" class="form-input" id="age" placeholder="25" min="15" max="100">
+                        <label class="form-label" for="age">Idade</label>
+                        <input type="number" class="form-input" id="age" placeholder="Ex: 28">
                     </div>
-                    
                     <div class="form-group">
                         <label class="form-label">Sexo</label>
                         <div class="radio-group">
-                            <label class="radio-option">
-                                <input type="radio" name="gender" value="male" checked>
-                                <span>👨 Masculino</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="gender" value="female">
-                                <span>👩 Feminino</span>
-                            </label>
+                            <input type="radio" name="gender" id="gender-male" value="male" class="radio-input" checked>
+                            <label for="gender-male" class="radio-label">Masculino</label>
+                            
+                            <input type="radio" name="gender" id="gender-female" value="female" class="radio-input">
+                            <label for="gender-female" class="radio-label">Feminino</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="method-selector">
-                    <label class="form-label">Método de Cálculo</label>
-                    <div class="method-buttons">
-                        <button class="method-btn active" data-method="boer">Fórmula de Boer</button>
-                        <button class="method-btn" data-method="james">Fórmula de James</button>
-                        <button class="method-btn" data-method="hume">Fórmula de Hume</button>
-                        <button class="method-btn" data-method="bodyfat">% Gordura Corporal</button>
+                    <label class="form-label" style="display:block; margin-bottom:0.5rem">Fórmula de Cálculo</label>
+                    <div class="method-buttons" id="methodButtons">
+                        <button class="method-btn active" data-method="boer">Boer (Padrão)</button>
+                        <button class="method-btn" data-method="james">James</button>
+                        <button class="method-btn" data-method="hume">Hume</button>
+                        <button class="method-btn" data-method="bodyfat">% Gordura</button>
                     </div>
                 </div>
 
-                <div id="bodyfatInput" class="form-group hidden">
-                    <label class="form-label">Percentual de Gordura Corporal (%)</label>
-                    <input type="number" class="form-input" id="bodyFat" placeholder="15" step="0.1" min="3" max="50">
+                <div id="bodyfatInput" class="form-group hidden" style="margin-bottom: 2rem;">
+                    <label class="form-label" for="bodyFat">% de Gordura Corporal</label>
+                    <input type="number" class="form-input" id="bodyFat" placeholder="Ex: 15.5" step="0.1">
                 </div>
 
-                <button class="calculate-btn" onclick="calculateLeanMass()">
-                    🧮 Calcular Massa Magra
-                </button>
-
-                <div id="errorMessage" class="error-message hidden"></div>
+                <button class="calculate-btn" id="calculateBtn">Calcular Resultados</button>
             </div>
 
-            <div class="results-section hidden" id="resultsSection">
-                <h2 class="section-title">📈 Resultados</h2>
+            <div class="results-section" id="resultsSection">
+                <div class="section-header">
+                    <span class="section-title">📊 Resultado</span>
+                </div>
                 <div class="results-grid" id="resultsGrid">
-                    <!-- Resultados serão inseridos aqui -->
+                    <!-- Cards gerados via JS -->
                 </div>
             </div>
         </div>
 
         <div class="info-section">
-            <h2 class="section-title">ℹ️ Informações Importantes</h2>
-            
-            <div class="info-grid">
-                <div class="info-card">
-                    <h3>🔬 Métodos de Cálculo</h3>
-                    <ul>
-                        <li><strong>Fórmula de Boer:</strong> Baseada em peso, altura e sexo. Mais precisa para população geral.</li>
-                        <li><strong>Fórmula de James:</strong> Considera idade além de peso, altura e sexo.</li>
-                        <li><strong>% Gordura Corporal:</strong> Mais preciso quando você conhece seu percentual de gordura.</li>
-                    </ul>
-                </div>
-                
-                <div class="info-card">
-                    <h3>📏 O que é Massa Magra?</h3>
-                    <p>A massa magra inclui músculos, ossos e órgãos. É um indicador importante da saúde metabólica e força física.</p>
-                </div>
-
-                <!-- Alerta Profissional Adicionado -->
-                <div class="info-card professional-alert">
-                    <h3>⚠️ Aviso Importante</h3>
-                    <p>Esta calculadora fornece estimativas e deve ser usada para fins educacionais. Os resultados não substituem uma avaliação profissional.</p>
-                    <p>Para uma análise precisa, consulte um médico, nutricionista ou profissional de educação física.</p>
+            <div class="info-card">
+                <h3>ℹ️ Sobre as Fórmulas</h3>
+                <ul>
+                    <li><strong>Boer (1984):</strong> Considerada a mais precisa para pessoas com IMC normal.</li>
+                    <li><strong>James (1976):</strong> Focada em peso e altura, usada historicamente.</li>
+                    <li><strong>Hume (1966):</strong> Fórmula clássica, muito utilizada em ambiente clínico.</li>
+                </ul>
+                <div class="warning-box">
+                    <strong>Aviso:</strong> Esta ferramenta fornece estimativas. Para um diagnóstico preciso, consulte um nutricionista ou faça uma bioimpedância/dexa.
                 </div>
             </div>
         </div>
+
         <footer id="signature"></footer>
     </div>
 
-    <script>
-        let currentMethod = 'boer';
-        const themeToggle = document.getElementById('themeToggle');
-        const htmlEl = document.documentElement;
+<script>
+    // --- MÓDULOS ---
+    
+    // Módulo de UI (Manipulação do DOM)
+    const UI = {
+        els: {
+            weight: document.getElementById('weight'),
+            height: document.getElementById('height'),
+            age: document.getElementById('age'),
+            bodyFat: document.getElementById('bodyFat'),
+            bodyFatContainer: document.getElementById('bodyfatInput'),
+            resultsSection: document.getElementById('resultsSection'),
+            resultsGrid: document.getElementById('resultsGrid'),
+            themeToggle: document.getElementById('themeToggle'),
+            methodButtons: document.querySelectorAll('.method-btn'),
+            calcBtn: document.getElementById('calculateBtn'),
+            signature: document.getElementById('signature')
+        },
 
-        document.querySelectorAll('.method-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                currentMethod = this.dataset.method;
-                
-                const bodyfatInput = document.getElementById('bodyfatInput');
-                if (currentMethod === 'bodyfat') {
-                    bodyfatInput.classList.remove('hidden');
-                } else {
-                    bodyfatInput.classList.add('hidden');
-                }
+        init() {
+            this.loadTheme();
+            this.updateSignature();
+            this.setupListeners();
+        },
+
+        setupListeners() {
+            // Alternar Método
+            this.els.methodButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    this.els.methodButtons.forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    const method = e.target.dataset.method;
+                    if (method === 'bodyfat') {
+                        this.els.bodyFatContainer.classList.remove('hidden');
+                    } else {
+                        this.els.bodyFatContainer.classList.add('hidden');
+                    }
+                });
             });
-        });
 
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.remove('hidden');
-            document.getElementById('resultsSection').classList.add('hidden');
-        }
+            // Botão Calcular
+            this.els.calcBtn.addEventListener('click', () => Logic.processCalculation());
 
-        function hideError() {
-            document.getElementById('errorMessage').classList.add('hidden');
-        }
+            // Alternar Tema
+            this.els.themeToggle.addEventListener('click', () => this.toggleTheme());
+        },
 
-        function validateInputs() {
-            const weight = parseFloat(document.getElementById('weight').value);
-            const height = parseFloat(document.getElementById('height').value);
-            const age = parseInt(document.getElementById('age').value);
-            const gender = document.querySelector('input[name="gender"]:checked').value;
+        toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('leanMassTheme', isDark ? 'dark' : 'light');
+            this.els.themeToggle.textContent = isDark ? '☀️' : '🌙';
+        },
 
-            if (!weight || weight < 20 || weight > 300) {
-                showError('Por favor, insira um peso válido entre 20 e 300 kg.');
-                return false;
-            }
-
-            if (!height || height < 100 || height > 250) {
-                showError('Por favor, insira uma altura válida entre 100 e 250 cm.');
-                return false;
-            }
-
-            if (!age || age < 15 || age > 100) {
-                showError('Por favor, insira uma idade válida entre 15 e 100 anos.');
-                return false;
-            }
-
-            if (currentMethod === 'bodyfat') {
-                const bodyFat = parseFloat(document.getElementById('bodyFat').value);
-                if (!bodyFat || bodyFat < 3 || bodyFat > 50) {
-                    showError('Por favor, insira um percentual de gordura corporal válido entre 3% e 50%.');
-                    return false;
-                }
-            }
-
-            return { weight, height, age, gender };
-        }
-
-        function calculateBoer(weight, height, gender) {
-            if (gender === 'male') {
-                return (0.407 * weight) + (0.267 * height) - 19.2;
+        loadTheme() {
+            const saved = localStorage.getItem('leanMassTheme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved === 'dark' || (!saved && prefersDark)) {
+                document.documentElement.classList.add('dark');
+                this.els.themeToggle.textContent = '☀️';
             } else {
-                return (0.252 * weight) + (0.473 * height) - 48.3;
+                this.els.themeToggle.textContent = '🌙';
             }
-        }
+        },
 
-        function calculateJames(weight, height, gender) {
-            if (gender === 'male') {
-                return 1.1 * weight - 128 * Math.pow(weight/height, 2);
-            } else {
-                return 1.07 * weight - 148 * Math.pow(weight/height, 2);
-            }
-        }
+        updateSignature() {
+            const year = new Date().getFullYear();
+            this.els.signature.innerHTML = `Feito com <span style="color:#ef4444">❤</span> por HAlexandre © ${year}`;
+        },
 
-        function calculateHume(weight, height, gender) {
-            if (gender === 'male') {
-                return (0.32810 * weight) + (0.33929 * height) - 29.5336;
-            } else {
-                return (0.29569 * weight) + (0.41813 * height) - 43.2933;
-            }
-        }
-
-        function calculateFromBodyFat(weight, bodyFat) {
-            return weight * (1 - bodyFat / 100);
-        }
-
-        function getBMI(weight, height) {
-            return weight / Math.pow(height / 100, 2);
-        }
-
-        function calculateLeanMass() {
-            hideError();
-            
-            const inputs = validateInputs();
-            if (!inputs) return;
-
-            const { weight, height, age, gender } = inputs;
-            let leanMass, fatMass, bodyFatPercentage;
-
-            switch (currentMethod) {
-                case 'boer':
-                    leanMass = calculateBoer(weight, height, gender);
-                    break;
-                case 'james':
-                    leanMass = calculateJames(weight, height, gender);
-                    break;
-                case 'hume':
-                    leanMass = calculateHume(weight, height, gender);
-                    break;
-                case 'bodyfat':
-                    const bodyFat = parseFloat(document.getElementById('bodyFat').value);
-                    leanMass = calculateFromBodyFat(weight, bodyFat);
-                    bodyFatPercentage = bodyFat;
-                    break;
-            }
-
-            if (currentMethod !== 'bodyfat') {
-                fatMass = weight - leanMass;
-                bodyFatPercentage = (fatMass / weight) * 100;
-            } else {
-                fatMass = weight - leanMass;
-            }
-
-            const bmi = getBMI(weight, height);
-
-            displayResults({
-                leanMass,
-                fatMass,
-                bodyFatPercentage,
-                bmi,
-                weight,
-                method: currentMethod
-            });
-        }
-
-        function displayResults(results) {
-            const resultsGrid = document.getElementById('resultsGrid');
-            const { leanMass, fatMass, bodyFatPercentage, bmi, weight, method } = results;
-
-            const methodNames = {
-                'boer': 'Fórmula de Boer',
-                'james': 'Fórmula de James',
-                'hume': 'Fórmula de Hume',
-                'bodyfat': 'Baseado em % Gordura'
-            };
-
-            resultsGrid.innerHTML = `
+        displayResults(data) {
+            this.els.resultsGrid.innerHTML = `
                 <div class="result-card">
                     <div class="result-title">Massa Magra</div>
-                    <div class="result-value">${leanMass.toFixed(1)}</div>
+                    <div class="result-value">${data.leanMass.toFixed(1)}</div>
                     <div class="result-unit">kg</div>
                 </div>
-                
                 <div class="result-card">
                     <div class="result-title">Massa Gorda</div>
-                    <div class="result-value">${fatMass.toFixed(1)}</div>
+                    <div class="result-value">${data.fatMass.toFixed(1)}</div>
                     <div class="result-unit">kg</div>
                 </div>
-                
                 <div class="result-card">
-                    <div class="result-title">% Gordura Corporal</div>
-                    <div class="result-value">${bodyFatPercentage.toFixed(1)}</div>
+                    <div class="result-title">% de Gordura</div>
+                    <div class="result-value">${data.bodyFatPct.toFixed(1)}</div>
                     <div class="result-unit">%</div>
                 </div>
-                
                 <div class="result-card">
-                    <div class="result-title">IMC</div>
-                    <div class="result-value">${bmi.toFixed(1)}</div>
+                    <div class="result-title">IMC Estimado</div>
+                    <div class="result-value">${data.bmi.toFixed(1)}</div>
                     <div class="result-unit">kg/m²</div>
                 </div>
-                
-                <div class="result-card">
-                    <div class="result-title">% Massa Magra</div>
-                    <div class="result-value">${((leanMass / weight) * 100).toFixed(1)}</div>
-                    <div class="result-unit">%</div>
-                </div>
-                
-                <div class="result-card">
-                    <div class="result-title">Método Utilizado</div>
-                    <div class="result-value" style="font-size: 1.2rem;">${methodNames[method]}</div>
-                    <div class="result-unit">cálculo científico</div>
-                </div>
             `;
-
-            document.getElementById('resultsSection').classList.remove('hidden');
-            document.getElementById('resultsSection').classList.add('fade-in');
+            this.els.resultsSection.classList.add('show');
+            this.els.resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
+    };
 
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                calculateLeanMass();
-            }
-        });
+    // Módulo de Lógica (Cálculos)
+    const Logic = {
+        processCalculation() {
+            const w = parseFloat(UI.els.weight.value);
+            const h = parseFloat(UI.els.height.value);
+            const gender = document.querySelector('input[name="gender"]:checked').value;
+            const method = document.querySelector('.method-btn.active').dataset.method;
 
-        // --- LÓGICA DO TEMA ESCURO E ASSINATURA ---
-        themeToggle.addEventListener('click', () => {
-            htmlEl.classList.toggle('dark');
-            if (htmlEl.classList.contains('dark')) {
-                localStorage.setItem('theme', 'dark');
-                themeToggle.innerHTML = '☀️';
-            } else {
-                localStorage.setItem('theme', 'light');
-                themeToggle.innerHTML = '🌙';
-            }
-        });
+            if (!w || !h) return alert("Por favor, preencha peso e altura.");
 
-        function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                htmlEl.classList.add('dark');
-                themeToggle.innerHTML = '☀️';
-            } else {
-                htmlEl.classList.remove('dark');
-                themeToggle.innerHTML = '🌙';
+            let leanMass = 0;
+
+            if (method === 'boer') {
+                if (gender === 'male') leanMass = (0.407 * w) + (0.267 * h) - 19.2;
+                else leanMass = (0.252 * w) + (0.473 * h) - 48.3;
+            } 
+            else if (method === 'james') {
+                if (gender === 'male') leanMass = 1.1 * w - 128 * Math.pow(w/h, 2);
+                else leanMass = 1.07 * w - 148 * Math.pow(w/h, 2);
+            } 
+            else if (method === 'hume') {
+                if (gender === 'male') leanMass = (0.32810 * w) + (0.33929 * h) - 29.5336;
+                else leanMass = (0.29569 * w) + (0.41813 * h) - 43.2933;
             }
+            else if (method === 'bodyfat') {
+                const bf = parseFloat(UI.els.bodyFat.value);
+                if (!bf && bf !== 0) return alert("Preencha o % de gordura.");
+                leanMass = w * (1 - (bf/100));
+            }
+
+            // Proteção contra resultados negativos ou irreais
+            if (leanMass < 0 || leanMass > w) leanMass = 0;
+
+            const fatMass = w - leanMass;
+            const bodyFatPct = (fatMass / w) * 100;
+            const bmi = w / Math.pow(h/100, 2);
+
+            UI.displayResults({ leanMass, fatMass, bodyFatPct, bmi });
         }
+    };
 
-        function setSignature() {
-            document.getElementById('signature').textContent = `Feito por HAlexandre em 31/07/2025 às 00:05`;
-        }
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => UI.init());
 
-        // Inicializar
-        loadTheme();
-        setSignature();
-    </script>
+</script>
 </body>
 </html>
